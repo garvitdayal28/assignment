@@ -14,11 +14,28 @@ export function useConversation() {
   const [busy, setBusy] = useState(false);
   const inFlight = useRef(false);
 
+  // A free-tier API host sleeps when idle and can take the best part of a
+  // minute to wake, so a failed first call is retried before the header is
+  // allowed to say the API is down.
   useEffect(() => {
     let live = true;
-    fetchHotel()
-      .then((data) => live && setHotel(data))
-      .catch(() => live && setHotel({ unreachable: true }));
+
+    async function load(attempt = 0) {
+      try {
+        const data = await fetchHotel();
+        if (live) setHotel(data);
+      } catch {
+        if (!live) return;
+        if (attempt < 4) {
+          setHotel({ waking: true });
+          setTimeout(() => live && load(attempt + 1), 4000);
+        } else {
+          setHotel({ unreachable: true });
+        }
+      }
+    }
+
+    load();
     return () => {
       live = false;
     };

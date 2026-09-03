@@ -6,8 +6,15 @@ export const SESSION_ID =
     ? crypto.randomUUID()
     : String(Date.now()) + Math.random().toString(16).slice(2);
 
+// Where the Flask API lives. In local dev this stays empty: the Vite dev
+// server proxies /chat, /reset and /api to the Flask process, so a relative
+// URL is same-origin and correct. In a deployed build the API is on another
+// host, so set VITE_API_BASE at build time, e.g.
+//   VITE_API_BASE=https://hotel-booking-conversation-agent.onrender.com
+export const API_BASE = (import.meta.env.VITE_API_BASE ?? "").replace(/\/+$/, "");
+
 async function request(path, options) {
-  const response = await fetch(path, options);
+  const response = await fetch(`${API_BASE}${path}`, options);
   const data = await response.json().catch(() => null);
   if (!response.ok || !data) {
     throw new Error(data?.error || `${response.status} ${response.statusText}`);

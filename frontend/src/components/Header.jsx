@@ -1,12 +1,13 @@
+import { API_BASE } from "../lib/api.js";
 import { plural } from "../lib/format.js";
 
 function LlmBadge({ hotel }) {
   if (!hotel) return null;
-  if (hotel.unreachable) {
+  if (hotel.waking || hotel.unreachable) {
     return (
       <span className="flex items-center gap-2 text-xs text-amber">
         <span className="size-2 rounded-full bg-amber" />
-        API unreachable
+        {hotel.waking ? "waking the API…" : "API unreachable"}
       </span>
     );
   }
@@ -25,17 +26,25 @@ function LlmBadge({ hotel }) {
 }
 
 export default function Header({ hotel, onReset, canReset }) {
-  const subtitle = hotel?.unreachable
-    ? "Start the Flask API with: python main.py"
-    : hotel
-      ? `${plural(hotel.rooms.length, "room type")} from inventory.json · check-in ${hotel.check_in_time}, check-out ${hotel.check_out_time}`
-      : "";
+  let subtitle = "";
+  if (hotel?.waking) {
+    subtitle = "The API host may be asleep — retrying.";
+  } else if (hotel?.unreachable) {
+    subtitle = API_BASE
+      ? `No answer from ${API_BASE}`
+      : "Start the Flask API with: python main.py";
+  } else if (hotel) {
+    subtitle = `${plural(hotel.rooms.length, "room type")} from inventory.json · check-in ${hotel.check_in_time}, check-out ${hotel.check_out_time}`;
+  }
+
+  const title = hotel?.hotel_name
+    ?? (hotel?.unreachable ? "No API" : "Loading…");
 
   return (
     <header className="flex shrink-0 items-center gap-4 border-b border-line bg-panel px-5 py-3">
       <div className="min-w-0">
         <h1 className="truncate text-[15px] font-semibold">
-          {hotel?.hotel_name ?? (hotel?.unreachable ? "No API" : "Loading…")}
+          {title}
           <span className="font-normal text-mute"> · booking agent</span>
         </h1>
         <p className="truncate text-xs text-mute">{subtitle}</p>

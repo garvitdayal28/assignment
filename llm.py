@@ -182,7 +182,8 @@ Rules:
 HINGLISH_TOKENS = re.compile(
     r"\b(kal|kl|parso|aaj|chahiye|chaiye|hai|hain|kya|kyaa|mein|me|hum|humein|"
     r"log|jane|kamra|kamre|kitna|kitne|kitni|rate|bina|nahi|haan|theek|thik|bhai|"
-    r"milega|mil|karo|kar|liye|wala|wale|raat|din|se|tak|bhi|acha|achha)\b",
+    r"milega|mil|karo|kar|liye|wala|wale|raat|din|se|tak|bhi|acha|achha|"
+    r"saal|ka|ki|ke|bachcha|bachche|nahi|sirf)\b",
     re.I,
 )
 NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6,
@@ -205,6 +206,7 @@ def _heuristic_extract(message: str, awaiting: list[str]) -> dict:
     """Offline fallback and safety net. Deliberately conservative."""
     text = message.lower()
     patch: dict = {}
+    child_match = None
 
     # A bare number means whatever was just asked for. Without that context
     # "2" is unreadable: nights, guests or an option number.
@@ -233,15 +235,24 @@ def _heuristic_extract(message: str, awaiting: list[str]) -> dict:
                  r"just adults?|sirf adults?|koi bachcha nahi|bachche nahi)\b", text):
         patch["children"] = 0
     else:
-        match = re.search(NUMBER + r"\s*(kids?|child|children|bacche|bache|bachche)", text)
-        if match:
-            patch["children"] = _num(match.group(1))
+        child_match = re.search(
+            NUMBER + r"\s*(kids?|child|children|bacch?[ae]|bach?che|bach?cha)", text)
+        if child_match:
+            patch["children"] = _num(child_match.group(1))
 
+    # Ages: "aged 4 and 6", "4 saal ka", "3 and 7 years old", "4 aur 6 saal".
+    # Once an age word is present, every small number after the child count is
+    # an age -- matching each number to its own unit misses "4 aur 6 saal".
+    found: list[int] = []
     ages = re.search(r"ages?d?\s*([\d\s,and&]+)", text)
     if ages:
         found = [int(a) for a in re.findall(r"\d{1,2}", ages.group(1)) if int(a) <= 17]
-        if found:
-            patch["children_ages"] = found
+    if not found:
+        tail = text[child_match.end():] if child_match else text
+        if re.search(r"saal|years?\b|yrs?\b|y\.?o\.?|umar", tail):
+            found = [int(a) for a in re.findall(r"\d{1,2}", tail) if int(a) <= 17]
+    if found:
+        patch["children_ages"] = found
 
     match = re.search(NUMBER + r"\s*(adults?|grown[- ]?ups?)", text)
     if match:

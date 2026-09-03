@@ -14,6 +14,7 @@ a fresh session id on every page load, so a browser refresh starts a new
 conversation and the old one is dropped. Nothing is persisted.
 """
 
+import os
 import sys
 import uuid
 from datetime import date
@@ -36,10 +37,19 @@ inv = Inventory.load(INVENTORY_PATH)
 sessions: dict[str, BookingState] = {}
 
 app = Flask(__name__)
-# The Vite dev server proxies /chat, /reset and /api to this process, so
-# same-origin is the normal case. CORS is here so a separately hosted build of
-# the dashboard also works.
-CORS(app, origins=[r"http://localhost:*", r"http://127.0.0.1:*", r"https://hotel-booking-conversation-agent.vercel.app/*"])
+
+# Who may call this API. In local dev the Vite server proxies /chat, /reset and
+# /api to this process, so requests are same-origin and CORS is not involved.
+# A deployed dashboard is on another host, hence the patterns below -- they are
+# regexes, and the vercel.app one also covers preview deployments. Set
+# ALLOWED_ORIGINS (comma separated) to override.
+DEFAULT_ORIGINS = [
+    r"http://localhost:\d+",
+    r"http://127\.0\.0\.1:\d+",
+    r"https://[a-z0-9-]+\.vercel\.app",
+]
+CORS(app, origins=[o.strip() for o in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+                   if o.strip()] or DEFAULT_ORIGINS)
 
 
 def get_state(session_id: str) -> BookingState:
