@@ -5,6 +5,7 @@ frontend/ owns everything the guest sees; this process owns the logic.
   python main.py --cli    -> same agent in the terminal, no HTTP
 
 Endpoints:
+  GET  /api/health  liveness check, no LLM call
   GET  /api/hotel   inventory summary + LLM status, for the dashboard header
   POST /chat        {message, session_id} -> reply + structured turn
   POST /reset       {session_id} -> drops that conversation
@@ -65,7 +66,21 @@ def root():
     return jsonify({
         "service": "hotel booking agent api",
         "ui": "run `npm run dev` in frontend/ and open http://localhost:5173",
-        "endpoints": ["GET /api/hotel", "POST /chat", "POST /reset"],
+        "endpoints": ["GET /api/health", "GET /api/hotel", "POST /chat", "POST /reset"],
+    })
+
+
+@app.get("/api/health")
+def health():
+    """Cheap liveness check -- no LLM call, no work. Suitable for an uptime
+    ping, which on a free host also keeps the instance from sleeping."""
+    return jsonify({
+        "status": "ok",
+        "hotel": inv.hotel_name,
+        "room_types": len(inv.rooms),
+        "llm": llm.llm_status(),
+        "model": llm.MODEL,
+        "active_sessions": len(sessions),
     })
 
 
