@@ -39,7 +39,7 @@ app = Flask(__name__)
 # The Vite dev server proxies /chat, /reset and /api to this process, so
 # same-origin is the normal case. CORS is here so a separately hosted build of
 # the dashboard also works.
-CORS(app, origins=[r"http://localhost:*", r"http://127.0.0.1:*"])
+CORS(app, origins=[r"http://localhost:*", r"http://127.0.0.1:*", r"https://hotel-booking-conversation-agent.vercel.app/*"])
 
 
 def get_state(session_id: str) -> BookingState:
