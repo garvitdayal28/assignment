@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0f1418;
+  --color-shell: #12181d;
+  --color-panel: #171d22;
+  --color-raised: #1e262c;
+  --color-line: #2a343b;
+  --color-hairline: #1c2429;
+  --color-mute: #8fa1ad;
+  --color-faint: #59676f;
+  --color-brand: #25d366;
+  --color-brand-deep: #06281a;
+  --color-brand-dim: #1a3a28;
+  --color-guest: #056162;
+  --color-amber: #f0b429;
+  --color-amber-dim: #3a3320;
+  --color-sky: #4aa3df;
+  --color-sky-dim: #1d3448;
+  --color-danger: #4a1f1f;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-ink);
+  color: #e7edf2;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Keep the chat and inspector scrollbars from looking like Windows chrome. */
+@utility scroll-slim {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+@keyframes blink {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@utility animate-blink {
+  animation: blink 1.2s infinite;
+}
