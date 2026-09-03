@@ -5,13 +5,15 @@ import Section from "./Section.jsx";
 import SlotTable from "./SlotTable.jsx";
 import StatusPill from "./StatusPill.jsx";
 
-export default function StatePanel({ hotel, turn }) {
+export default function StatePanel({ hotel, turn, active }) {
   const currency = hotel?.currency ?? "INR";
   const options = turn?.recommendations ?? [];
   const assumptions = turn?.assumptions ?? [];
 
   return (
-    <aside className="scroll-slim flex flex-col gap-6 overflow-y-auto bg-shell px-5 pt-4 pb-10">
+    <aside
+      className={`${active ? "flex" : "hidden"} scroll-slim flex-col gap-6 overflow-y-auto bg-shell px-4 pt-4 pb-10 sm:px-5 lg:flex`}
+    >
       <Section title="Turn status">
         <StatusPill status={turn?.status} />
       </Section>

@@ -15,12 +15,14 @@ function LlmBadge({ hotel }) {
   return (
     <span
       className="flex items-center gap-2 text-xs text-mute"
-      title={hotel.llm}
+      title={`${hotel.llm} · ${hotel.model}`}
     >
       <span
         className={`size-2 rounded-full ${ready ? "bg-brand" : "bg-amber"}`}
       />
-      {ready ? hotel.model : "rules-only fallback"}
+      <span className="hidden sm:inline">
+        {ready ? hotel.model : "rules-only fallback"}
+      </span>
     </span>
   );
 }
@@ -41,24 +43,25 @@ export default function Header({ hotel, onReset, canReset }) {
     ?? (hotel?.unreachable ? "No API" : "Loading…");
 
   return (
-    <header className="flex shrink-0 items-center gap-4 border-b border-line bg-panel px-5 py-3">
-      <div className="min-w-0">
-        <h1 className="truncate text-[15px] font-semibold">
+    <header className="flex shrink-0 items-center gap-3 border-b border-line bg-panel px-4 py-3 sm:gap-4 sm:px-5">
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-sm font-semibold sm:text-[15px]">
           {title}
           <span className="font-normal text-mute"> · booking agent</span>
         </h1>
         <p className="truncate text-xs text-mute">{subtitle}</p>
       </div>
 
-      <div className="ml-auto flex items-center gap-4">
+      <div className="flex shrink-0 items-center gap-3 sm:gap-4">
         <LlmBadge hotel={hotel} />
         <button
           type="button"
           onClick={onReset}
           disabled={!canReset}
-          className="rounded-md border border-line bg-raised px-3 py-1.5 text-[13px] transition-colors hover:border-mute disabled:opacity-50 disabled:hover:border-line"
+          className="rounded-md border border-line bg-raised px-2.5 py-1.5 text-[13px] transition-colors hover:border-mute disabled:opacity-50 disabled:hover:border-line sm:px-3"
         >
-          New conversation
+          <span className="hidden sm:inline">New conversation</span>
+          <span className="sm:hidden">New</span>
         </button>
       </div>
     </header>

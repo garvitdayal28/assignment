@@ -13,15 +13,17 @@ export default function Composer({ onSend, disabled }) {
   return (
     <form
       onSubmit={submit}
-      className="flex shrink-0 gap-2 border-t border-line bg-panel px-5 py-3"
+      className="flex shrink-0 gap-2 border-t border-line bg-panel px-4 py-3 sm:px-5"
     >
+      {/* 16px on mobile: anything smaller makes iOS Safari zoom on focus. */}
       <input
         type="text"
         value={draft}
         autoFocus
+        enterKeyHint="send"
         onChange={(event) => setDraft(event.target.value)}
         placeholder="kal ke liye 2 room chahiye AC wala"
-        className="min-w-0 flex-1 rounded-lg border border-line bg-raised px-3 py-2.5 outline-none placeholder:text-faint focus:border-brand"
+        className="min-w-0 flex-1 rounded-lg border border-line bg-raised px-3 py-2.5 text-base outline-none placeholder:text-faint focus:border-brand sm:text-sm"
       />
       <button
         type="submit"

@@ -8,7 +8,7 @@ export default function MessageBubble({ message }) {
   return (
     <>
       <div
-        className={`max-w-[78%] rounded-xl px-3.5 py-2.5 leading-relaxed break-words whitespace-pre-wrap ${BUBBLE[message.role]}`}
+        className={`max-w-[88%] rounded-xl px-3.5 py-2.5 leading-relaxed break-words whitespace-pre-wrap sm:max-w-[78%] ${BUBBLE[message.role]}`}
       >
         {message.text}
       </div>
